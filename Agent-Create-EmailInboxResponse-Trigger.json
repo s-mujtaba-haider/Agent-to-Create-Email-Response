@@ -1,0 +1,854 @@
+{
+  "name": "Agent-Create-EmailInboxResponse-Trigger",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=sender email address:{{ $node[\"receiveEmail\"].json.from }}\nemail body: {{ $json.textPlain }}\nemail subject: {{ $json.subject }}\ncurrent date: {{ $today.format('dd-MM-yyyy') }}\n\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=## Agent: Geoffrey – Intelligent Email Handler \n### 0\\. Consistency & Priority Mandates (DETERMINISM ENFORCED)\n  * **DETERMINISTIC BEHAVIOR REQUIRED:** You must treat all instructions as non-negotiable code execution steps. Variation in style, structure, or adherence to formatting rules is an execution failure.\n  * **PRIORITY MATRIX (DO NOT DEVIATE):**\n    1.  **Absolute Priority:** The JSON array structure and the full tool sequencing (`createEmail` -\\> `sendEmail`).\n    2.  **High Priority:** The required content template (Section 9) and the Signature (Section 1d).\n    3.  **Mandatory Priority:** HTML Formatting (`<b>`, `<ul>`, `<li>`, `<br>`) and Thread Conversion (Section 1e).\n-----\nYour responsibilities:\n1.  **Analyze sender intent intelligently**.\n2.  **Manage CRM contacts and enrich data**.\n3.  **Generate professional email replies** formatted as **HTML**.\n4.  **Ensure the email is SENT** (do not just draft it).\nYou operate in a **single-threaded execution** model.\n-----\n### 1\\. Professional Email Reply — Mandatory HTML Formatting\n**CRITICAL:** The output for the email body must be **HTML code** stringified within JSON.\n#### a) Salutation\n  * Format: `Dear [Name],`\n  * **Spacing:** Must be followed by `\\n<br><br>\\n`.\n#### b) Paragraph Structure\n  * **Separation:** Paragraphs must be separated by `\\n<br><br>\\n`.\n  * **Length:** Minimum **3 paragraphs**.\n#### c) Bullet Points (HTML Lists)\n  * Strict Rule: You **MUST** use HTML unordered lists (`<ul>`) and list items (`<li>`) for features.\n  * **Bolding Mandate:** The primary topic/title of the list item **MUST** be enclosed in `<b>` tags.\n  * Example: `<li><b>Web Design & Development:</b> Description...</li>`\n#### d) Signature Block (STRICT IDENTITY FIX)\n  * **Identity:** The sender **MUST** be **Geoffrey DesJardin**.\n  * **Layout:** Use `<br>` tags to force single-line breaks.\n  * Always exactly:\n    ```html\n    Best Regards,<br>\n    Geoffrey DesJardin<br>\n    Geoffrey@C1M.life<br>\n    Client Success Lead<br>\n    Book Here: <a href=\\\"https://c1m.ai/DiscoveryCall/\\\">https://c1m.ai/DiscoveryCall/</a>\n    ``` - must be clickable link\n#### e) Gmail-Style Thread (ABSOLUTE CONVERSION ENFORCER)\n**THIS IS THE MOST COMPLEX STEP. DO NOT FAIL THIS.** The thread must be visually clean HTML.\n* **Step 1: Start Separator:** Begin with the separator: `\\n<br><br>\\n-----<br><br>\\n`\n* **Step 2: Latest Header:** Insert the header for the latest message *only*: `On [Date] - [Time] - [Sender Name] - <Sender Email> wrote:<br><br>\\n`\n* **Step 3: History Block Insertion (CRITICAL APPENDING FIX):** Insert the **ENTIRE** raw email content that was received in this turn—starting from the **client's latest reply**—subject to these **MANDATORY CONVERSION RULES**:\n    * **Rule 3.0 (Inclusion):** The content inserted here MUST begin with the text of the client's latest reply (the message analyzed for intent).\n    * **Rule 3.1 (Newlines):** Replace ALL existing line break characters (`\\n`, `\\r\\n`, or double line breaks) in the raw input text with the HTML tag `<br>`.\n    * **Rule 3.2 (Cleanup ABSOLUTE):** Search for and **REMOVE** all plain text remnants, including `>` blockquote symbols, ` -  ` list characters, and any inconsistent whitespace from the history content.\n    * **Rule 3.3 (Visual Spacing):** Ensure every logical paragraph separation is enforced by two `<br>` tags (`<br><br>`).\n    * **Rule 3.4 (Links):** Ensure any URLs or links in the history are wrapped in valid HTML anchor tags (`<a href=\\\"...\\\">`).\n  * **Rule 3.5** Every message while creating a thread must be line seperated \"---------\".\n* **Goal:** The final thread history must be perfectly structured HTML, free of raw characters, and readable and every message must be line seperated .\n-----\n### 2\\. Execution Logic & State Management (SEQUENCING FIX)\n**You must strictly follow this sequential logic:**\n1.  **Phase 1: Creation**\n      * **BEFORE CALLING createEmail:** Internally verify the generated `custom_html` string against **Auto-Correction Rules (Section 4)**. Do not proceed until verified.\n      * Call `createEmail` with the formatted HTML body.\n      * **STOP** and wait for the tool output.\n2.  **Phase 2: Sending (The Mandatory Next Step)**\n      * **IF** the tool output from `createEmail` returns a success message and an `email_id`:\n      * **THEN** your **ONLY** allowed action is to immediately call `sendEmail`.\n      * **Input:** Use the `email_id` provided in the tool output of the previous step.\n-----\n### 3\\. JSON & Tool Output Rules\n  * **Field Name:** The content goes into `custom_html`.\n  * **Escaping:** Double quotes inside HTML attributes must be escaped as `\\\"`.\n  * **Newlines:** Use `\\n` for string readability, but use `<br>` for visual rendering.\n-----\n### 4\\. Auto-Correction Rules (CRITICAL FIX FOR BOLDING/THREAD)\n1.  If fewer than 3 paragraphs, automatically rewrite with proper spacing.\n2.  If signature lines are merged, rewrite into separate lines.\n3.  Ensure the thread is appended with correct `<br>` conversion.\n4.  **MANDATORY BOLDING FIX:** In the core services list (`<ul><li>`), the service name must be wrapped in `<b>` tags. If they are missing, the agent must immediately apply them and rewrite the `custom_html` string.\n5.  Convert soft wraps into **hard line breaks** (`<br>`) within the reply content.\n-----\n### 5\\. Intent Analysis\n  * Detect intent intelligently. Common intents:\n      * **Business / Service Inquiry**\n      * **Appointment Scheduling**\n      * **General Support / Out-of-Office**\n-----\n### 6\\. Contact Management\n  * Call `getContact` using sender’s email.\n  * If not found, call `createContact`.\n  * Enrich contact via `contactEnrich`.\n  * If company info exists, call `companyEnrich`.\n-----\n### 7\\. Intent Handling\n#### A. Appointment Scheduling\n  * Timezone: **Central Standard Time**.\n  * STRICT NAMING: When referring to this timezone in the final email body, you MUST use the full name \"Central Standard Time\" and MUST NOT use the abbreviation \"CST.\"\n  * Only call `appointmentConfirmation` if a **specific time slot** is provided.\n#### B. Business Inquiry (STRICT TEMPLATE FIX)\n  * **Action:** Call `businessInquiry`, passing only the specific services mentioned.\n  * **Response Body:** For a general service inquiry, the agent **MUST** prioritize and use the structure and specific service list detailed in the **Example Correct Output (Section 9)** to ensure consistency.\n#### C. Other / Failures\n  * **Unclear intent:** Reply politely asking for clarification.\n  * **Out-of-office / vacation:** Reply acknowledging absence.\n-----\n\n\n### 9. Formating Instructions of Time Slots in body of Email : \nFor each calendar day, you must return exactly three (3) available 30-minute time slots, as provided by `getAvailableTimeSlot`.If a day has fewer than three slots, return only the available slots. Do not add new slots or ignore the day.\nYou must follow exactly format of below example while including time slots in email body \n# Example:\n<p><strong>Monday:</strong></p>\n\n<ul style=\"list-style-type: none; padding-left: 0; margin: 0;\">\n  <li>Oct 23rd: 09:00 - 09:30 AM (CST)</li>\n  <li>Oct 23rd: 09:30 - 10:00 AM (CST)</li>\n  <li>Oct 23rd: 10:00 - 10:30 AM (CST)</li>\n</ul>\n\n### 10. **Be consistent while genearting thread and formating email body**\n### 11. **Ensure that all messages, from the initial message to the most recent, are included in proper chronological order while creating thread.**\n### 12. **You must only mention link of discovery call in Signature Block**\n### 13. **At the end of conversation you must convience for a discovery call**\n### 14. Include only time slotes when user ask for a discovery call.\n### 15. When a user seems interested assign MQL tag.\n### 16. When a user ask for a discovery call Assign SQL tag.\n### 17. Tool Call Flow (Single-Threaded)\n1.  `getContact`\n2.  `[createContact if not found]`\n3.  `contactEnrich` / `companyEnrich`\n4.  `getAvailableTimeSlot`\n5.  `[appointmentConfirmation IF AND ONLY IF a specific date & time is provided]`\n6.  `[createEmail]` – **Wait for ID**\n7.  `[sendEmail]` – **MUST occur immediately after receiving ID**\n8.  `[getSentEmailEvents]`\n9.  `[saveNote - With all previous messages history thread.]`\n10. `doNotContact` (If email is a hard bounce)\n11. `updateContact` (If email is a hard bounce)\n12. `updateKeap` (If email is a hard bounce)\n13.  `[addMqlOrSql]` - **Send MQL When user seems intresting, and send SQL\" when user ask for a discovery call**\n-----"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -800,
+        208
+      ],
+      "id": "30c6a0f9-cfad-43ff-9e66-347265c3b33a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "gpt-5.2",
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -1552,
+        784
+      ],
+      "id": "0b056efd-0523-492e-8162-393739a8459b",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "WYcFEAqXniSxcDES",
+          "name": "OpenAi account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2,
+      "position": [
+        -1184,
+        208
+      ],
+      "id": "e5f12732-16a0-4aca-8b55-9421a391e803",
+      "name": "receiveEmail",
+      "credentials": {
+        "imap": {
+          "id": "xwyGactjO8ZaBfoH",
+          "name": "Development Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "call this tool when send scheduled call email.",
+        "method": "POST",
+        "url": "https://n8n.c1m.ai/webhook/57b85197-7200-4589-9197-6dd07e96ea7f",
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "email_id"
+            },
+            {
+              "name": "contact_id"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        -400,
+        784
+      ],
+      "id": "2b5683d1-3601-413e-bf43-8b2170ee93fd",
+      "name": "sendEmail"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Call this tool when we have to create email.",
+        "method": "POST",
+        "url": "https://n8n.c1m.ai/webhook/fe90d91c-dd10-42ae-a344-3d7ae8add4b2",
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "name",
+              "valueProvider": "fieldValue",
+              "value": "New Message"
+            },
+            {
+              "name": "subject"
+            },
+            {
+              "name": "is_published",
+              "valueProvider": "fieldValue",
+              "value": "1"
+            },
+            {
+              "name": "custom_html"
+            },
+            {
+              "name": "email_type",
+              "valueProvider": "fieldValue",
+              "value": "template"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        -784,
+        800
+      ],
+      "id": "4170c7ca-befa-410f-a45b-3cbd1200b2d0",
+      "name": "createEmail"
+    },
+    {
+      "parameters": {
+        "toolDescription": "call this tool when email is hard-bounce email or email has in future date than current date.",
+        "method": "POST",
+        "url": "https://n8n.c1m.ai/webhook/b92ae7d1-fe17-4f56-b4b6-98f3b09d7765",
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "email"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        -256,
+        768
+      ],
+      "id": "848ce70e-0086-48ee-9af7-04c1d6bc1f5a",
+      "name": "doNotContact"
+    },
+    {
+      "parameters": {
+        "toolDescription": "call this tool when the email is auto generated and has passed date in it as compared to current date.",
+        "method": "POST",
+        "url": "https://n8n.c1m.ai/webhook/f41e0760-1a87-4029-95de-6c606d4e3f51",
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "id"
+            },
+            {
+              "name": "returnDate"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        -96,
+        720
+      ],
+      "id": "212e49b1-20ad-42e2-8d54-9eb3a9ebfee9",
+      "name": "removeDoNotContact"
+    },
+    {
+      "parameters": {
+        "toolDescription": "call this tool when email is detetcted as interested in schedule a call.",
+        "method": "POST",
+        "url": "https://n8n.c1m.ai/webhook/b3fd55aa-ac75-4232-aff9-d92fa9283feb",
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "timezone"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        432
+      ],
+      "id": "8201f215-9694-41fc-bf2e-bf547180423a",
+      "name": "getAvailableTimeSlot"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        160
+      ],
+      "id": "0858761e-4388-4e95-8cf0-bda9a6881d54",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "WYcFEAqXniSxcDES",
+          "name": "OpenAi account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "call this tool for contact enrich",
+        "method": "POST",
+        "url": "https://n8n.c1m.ai/webhook/b377528f-5ae5-446f-ac43-2470d2d10138",
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "email"
+            },
+            {
+              "name": "first_name",
+              "valueProvider": "modelOptional"
+            },
+            {
+              "name": "last_name",
+              "valueProvider": "modelOptional"
+            },
+            {
+              "name": "company",
+              "valueProvider": "modelOptional"
+            },
+            {
+              "name": "phone",
+              "valueProvider": "modelOptional"
+            },
+            {
+              "name": "city",
+              "valueProvider": "modelOptional"
+            },
+            {
+              "name": "state",
+              "valueProvider": "modelOptional"
+            },
+            {
+              "name": "zip",
+              "valueProvider": "modelOptional"
+            },
+            {
+              "name": "linkedin_profile",
+              "valueProvider": "modelOptional"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        48,
+        688
+      ],
+      "id": "45340b52-d901-4f51-b5f1-872fa57e922f",
+      "name": "contactEnrich"
+    },
+    {
+      "parameters": {
+        "toolDescription": "call this tool for company enrich",
+        "url": "https://n8n.c1m.ai/webhook/company",
+        "sendQuery": true,
+        "parametersQuery": {
+          "values": [
+            {
+              "name": "website"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        192,
+        624
+      ],
+      "id": "3f2396d5-c7bd-462f-9d56-c950e593e140",
+      "name": "companyEnrich"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.c1m.ai/webhook/fd4b4f35-c018-4638-81f8-aa3bb39d622c",
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "email"
+            },
+            {
+              "name": "subject"
+            },
+            {
+              "name": "text"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        -656,
+        800
+      ],
+      "id": "96dd9e4a-cb26-4a05-a667-011238c978eb",
+      "name": "getSentEmailEvents"
+    },
+    {
+      "parameters": {
+        "toolDescription": "call this tool to save note to mautic",
+        "method": "POST",
+        "url": "https://n8n.c1m.ai/webhook/40e0a7c7-d110-4a8e-96bc-094580bf9d65",
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "email_timestamp"
+            },
+            {
+              "name": "email_id"
+            },
+            {
+              "name": "email_subject"
+            },
+            {
+              "name": "email_body"
+            },
+            {
+              "name": "contact_id"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        -528,
+        800
+      ],
+      "id": "a42048d1-8916-4b35-80f8-113af00bcb2b",
+      "name": "saveNote"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Call this tool to update contact when email bounce back.",
+        "method": "POST",
+        "url": "https://n8n.c1m.ai/webhook/contact-update",
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "tags"
+            },
+            {
+              "name": "id"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        -1152,
+        784
+      ],
+      "id": "9f5aa030-ea45-4868-9bb8-c868cbc5c823",
+      "name": "updateContact"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Call this tool when to get user information i,e(id).",
+        "method": "POST",
+        "url": "https://n8n.c1m.ai/webhook/bd119f7a-722b-4906-abeb-3ec7dbb11f91",
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "search_by",
+              "valueProvider": "fieldValue",
+              "value": "email"
+            },
+            {
+              "name": "search_value"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        -1296,
+        784
+      ],
+      "id": "2fe638eb-ba92-4a03-b404-ca91b1c26a0c",
+      "name": "GetContact"
+    },
+    {
+      "parameters": {
+        "toolDescription": "call this tool to when the email is about business inquiry.",
+        "method": "POST",
+        "url": "https://n8n.c1m.ai/webhook/7cb3811b-8062-40e3-af6b-613934c7895a",
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "email"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        -1408,
+        784
+      ],
+      "id": "313cad36-b1dc-42ea-b872-d1722b0ed866",
+      "name": "createContact"
+    },
+    {
+      "parameters": {
+        "toolDescription": "call this tool when, book appointment.",
+        "method": "POST",
+        "url": "https://n8n.c1m.ai/webhook/46dcb914-f0af-433d-808e-aa51c7db268c",
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "email"
+            },
+            {
+              "name": "name"
+            },
+            {
+              "name": "timezone"
+            },
+            {
+              "name": "start_date_time"
+            },
+            {
+              "name": "end_date_time"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        272
+      ],
+      "id": "dc765bbf-abe6-4d7f-ac97-ae9f1d8b6d83",
+      "name": "appointmentConfirmation"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolName": "C1M_sales_pipeline",
+        "toolDescription": "Call this tool whe ask about services, related to Website Design\nAI Readiness\nAI Powered SEO\nConversational AI\nADA Compliance\nPPC and ads\nGoogle Ads set up\nWeb Design service – next suggested steps to offer client\nRoute 1: Those asking about the Web Design service may wish to discuss the following related services in turn:\nAI Readiness\nAI Powered SEO\nConversational AI\nNurture\nLead Generation\nLead Nurture\nRoute 2: An alternative roadmap starting from the Web Design service is to discuss our other services in this order:\nBrand ID\nVideo Marketing\nVisual Journalism\nNurture\nLead Generation\nLead Nurture\nAI readiness\nAI Powered SEO\nADA Compliance",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "presales-v2",
+          "mode": "list",
+          "cachedResultName": "presales-v2"
+        },
+        "topK": 20,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        64
+      ],
+      "id": "610b5736-b9d7-4ec4-abb2-33b2bf4e6ea9",
+      "name": "businessInquiry",
+      "credentials": {
+        "pineconeApi": {
+          "id": "jCHw9QXuUvq53BBW",
+          "name": "PineconeApi account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.c1m.ai/webhook/2c8330b2-77c6-42f5-97eb-848889a61c0b",
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "email_address"
+            },
+            {
+              "name": "address1"
+            },
+            {
+              "name": "address2"
+            },
+            {
+              "name": "city"
+            },
+            {
+              "name": "state"
+            },
+            {
+              "name": "zipcode"
+            },
+            {
+              "name": "companyId"
+            },
+            {
+              "name": "email"
+            },
+            {
+              "name": "fax"
+            },
+            {
+              "name": "name"
+            },
+            {
+              "name": "jobTitle"
+            },
+            {
+              "name": "phoneNumber"
+            },
+            {
+              "name": "facebook"
+            },
+            {
+              "name": "timezone"
+            },
+            {
+              "name": "website"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        -912,
+        800
+      ],
+      "id": "e8618ade-5d5b-486f-be9f-3997d923da81",
+      "name": "updateKeap"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.c1m.ai/webhook/2a50fd9d-cca6-48a8-8c55-356aad6a9af1",
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "email_address"
+            },
+            {
+              "name": "tag"
+            },
+            {
+              "name": "action",
+              "valueProvider": "fieldValue",
+              "value": "add"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        -1024,
+        800
+      ],
+      "id": "5bb93cff-5313-42f7-b3bd-97877f6d82e3",
+      "name": "addMqlOrSql"
+    }
+  ],
+  "pinData": {
+    "receiveEmail": [
+      {
+        "json": {
+          "textHtml": "<div dir=\"ltr\"><table cellpadding=\"0\" class=\"gmail-cf gmail-iB\" style=\"border-collapse:collapse;table-layout:fixed;width:1478px;color:rgb(119,119,119);font-family:&quot;Google Sans&quot;,Roboto,RobotoDraft,Helvetica,Arial,sans-serif;font-size:14px\"><tbody><tr><td><div class=\"gmail-iA gmail-g6\" role=\"gridcell\" tabindex=\"-1\" style=\"padding-left:0px;color:rgb(85,85,85);font-variant-numeric:normal;font-variant-east-asian:normal;font-variant-alternates:normal;font-size-adjust:none;font-kerning:auto;font-feature-settings:normal;font-stretch:normal;font-size:small;line-height:1.5;font-family:Arial,Helvetica,sans-serif;vertical-align:top;overflow:hidden;text-overflow:ellipsis;outline:none\">want to know about your services</div></td></tr></tbody></table></div>\r\n",
+          "textPlain": "want to know about your services\r\n",
+          "metadata": {
+            "return-path": "<nabeeluser945@gmail.com>",
+            "received": "from mail-vk1-f176.google.com (mail-vk1-f176.google.com [209.85.221.176]) by inbound-smtp.us-west-2.amazonaws.com with SMTP id mbesknj9at7r7kjhgd16v7ko7bdnqau1nl0t5r01 for dev@c1m.life; Mon, 01 Dec 2025 08:57:17 +0000 (UTC)",
+            "received-spf": "pass (spfCheck: domain of _spf.google.com designates 209.85.221.176 as permitted sender) client-ip=209.85.221.176; envelope-from=nabeeluser945@gmail.com; helo=mail-vk1-f176.google.com;",
+            "authentication-results": "amazonses.com; spf=pass (spfCheck: domain of _spf.google.com designates 209.85.221.176 as permitted sender) client-ip=209.85.221.176; envelope-from=nabeeluser945@gmail.com; helo=mail-vk1-f176.google.com; dkim=pass header.i=@gmail.com; dmarc=pass header.from=gmail.com;",
+            "x-ses-receipt": "AEFBQUFBQUFBQUFGUkd1NFd2VkpWVTREQXdYQjhwaXZKaEV2WTh1RHgwNWYwOUoybTMwaHdYZGxCY3lNWk43VXR5c3l6NG1JR04xWTd6QUtkRXVnWDk0cVIwWmpjYkVSS1NJWWt1ZmlVSTRtOXVxMXlrbjRIY0NQbGZjNHRDdWROWUhFRjQ4ZjdnY2Z5TVdPc1hEVFJuRU1SSkJ6OHYrc2Q3RC9za2I5VGRuanE0cVV0MW4zTzZsc004NmtZM21XcHZ0cXk4bjlLZjROODNlTmhDOXMyenJGUFFCY0Z0SzJ3V3c1QU5zNFRFdjZGTkhXLzBUZnowLzB1bmYzQjJVRUlCVDAvM09yc28rVDloVU1zSExUSE1yL3FkamxWbytublVQMTlRRkNmNkt0dXhTV1NqN3NpdkE9PQ==",
+            "x-ses-dkim-signature": "a=rsa-sha256; q=dns/txt; b=Gm72dlkL91/aKAHl9O90cOaNR2ZFGEv+wkFpm9OOYXo6cBibuk2OkL7+CcVWIIa/13ruj91jMjYIsmpiXKqGYwxf/sHydZxwotPWPFwfDN5ve+IzmZ/U2C5hU4S9rULhOT7Z2eCjZHklEtgGvRXzdZOij8CbThIBz1y2SvY4Tzw=; c=relaxed/simple; s=gdwg2y3kokkkj5a55z2ilkup5wp5hhxx; d=amazonses.com; t=1764579438; v=1; bh=mqdVvuu9JnB0xwwr8bqub4NgMik25x1Ja3akOlvBMxs=; h=From:To:Cc:Bcc:Subject:Date:Message-ID:MIME-Version:Content-Type:X-SES-RECEIPT;",
+            "dkim-signature": "v=1; a=rsa-sha256; c=relaxed/relaxed;        d=gmail.com; s=20230601; t=1764579436; x=1765184236; darn=c1m.life;        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject         :date:message-id:reply-to;        bh=mqdVvuu9JnB0xwwr8bqub4NgMik25x1Ja3akOlvBMxs=;        b=jDwAc7i0kcOdaqVIf6GUhpGanVVUt3p4LOxyzddLE0E9fXC8Kav48+o/4lwnwPxl9D         s0uXubPQd0zRwvp2InrySTVYYf1deAaznFm2U42JhH3hMph5G2XJOIHoW9kjtT7vI2Pk         19FazRGm5XFYifvMOdJjL+S3EBee7KvjpaloHne3wzTvK7rvzXD87nqH+cxoLZfYPjXm         SBOR4M4Z5bdD+EJA2f9wdrMI7kB2eMQqTLgOypyl9Sm7+MIJhjSo/xq+/R6pAje6n2gj         R5MufIZXwK61Vy4nvHaOmuW1edDQiIKfaEzXKJhUlyD3Uez4pD6hLeWqHlr3JIXr0OL3         PmUA==",
+            "x-google-dkim-signature": "v=1; a=rsa-sha256; c=relaxed/relaxed;        d=1e100.net; s=20230601; t=1764579436; x=1765184236;        h=to:subject:message-id:date:from:mime-version:x-gm-gg         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;        bh=mqdVvuu9JnB0xwwr8bqub4NgMik25x1Ja3akOlvBMxs=;        b=YCD2XfvW+q70Q2ehXDkFZu+l4wndIBIL0WiTDkCBgCkwwQjDGF5CNqtCV5DNTTIxfe         oi8gBYlapfJ2tgzej/7ACXBSL/AlGw0ZtY410t6dLt0EqzraGvqkS373WtZVPMyt0mwt         iXZPFjZQ2Bn1qeqt/FyuIvAWSXVYLu/zPOAqMlHll+wt75OaK8LD0YFgT8JfFQ2CGpZk         kD8Rtmz+y3wbHAkgZwUQ/fEnjJS91pwSaJJeKRrYOsDKmdVm4C3VKaRorTclcJy3FFxa         h/hRdPmnQtowvwVWHCfRFSMx/8rb3p11ef4XDI0Tq1MpytjLxoV7W4/2gGu21Pt+EkDN         UWNw==",
+            "x-gm-message-state": "AOJu0YzCLRaHTCjW6BuGBPOI+moNwbHZXw4Y0vhgBr1RyYKU0AkxOOdL\teHDi26izR7p0SQnmOvnWWH9Svh/0YKbJlz7a4CEvqhuyp0wLtqJ1Q3tSUOmdasycJz1jxJ4Wy0G\tAE9bv/Js9RxBae0wEizJhylkjDrKV5kBut63EuKTSaw==",
+            "x-gm-gg": "ASbGncuqfqwNP1we0x33AADSDXTGLNQTE/tQEjUNBKvhFcxcq4vA+4iTlye+D0Rf17Z\tW9EJGmeN8rCkKlVFFYB2vQ8npm6g9B3WIr7C7dljtJTsvmxrefpQeSX0LVDcRH1RkdJXjLeC7CT\tc6jJxZZS0LKjXc1+oKQ9bmHpOCqpRwsnd5W4k5y4PDoX8AJ5vtNLuMt9eL4KO3k0T1EdM31LJC5\tyijkGQrqpQuRhj4ejyptvZDjOXK4x/tgASd4cCuAHGvEzI1vev6GL4be/nAOC92AxQcRnXfU8wa\ta6pCmZA87CKpYX2kvqvo7uJl21cEfzsj",
+            "x-google-smtp-source": "AGHT+IH0cEbJeZ56yoLyRkqp+XcgPktTNi6FTasXQ8uLAahW8WVS68IbT4hj/wK5ZVL4mpgPwlR3oZTg7+t7tlOWUOM=",
+            "x-received": "by 2002:a05:6102:5120:b0:519:534a:6c5e with SMTP id ada2fe7eead31-5e2243e9a2cmr9269400137.33.1764579436425; Mon, 01 Dec 2025 00:57:16 -0800 (PST)",
+            "mime-version": "1.0",
+            "x-gm-features": "AWmQ_bliQj4cjaOjDwWPVIGd8Rq0_4oBsI_fYMfxi_3gfMQkVHn5WEo3ZJRyAHI",
+            "message-id": "<CAA+=0+fS_PLeSQM2BwDOTXqph0QBwmN04Gr0xtvMSXBdF=OiSQ@mail.gmail.com>",
+            "content-type": "multipart/alternative; boundary=\"0000000000007c754f0644e02aab\""
+          },
+          "attributes": {
+            "uid": 290
+          },
+          "from": "nabeeluser <nabeeluser945@gmail.com>",
+          "date": "Mon, 1 Dec 2025 13:57:05 +0500",
+          "subject": "services inquiry",
+          "to": "dev@c1m.life"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "receiveEmail": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sendEmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "createEmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "doNotContact": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "removeDoNotContact": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getAvailableTimeSlot": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "businessInquiry",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "contactEnrich": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "companyEnrich": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getSentEmailEvents": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "saveNote": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "updateContact": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetContact": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "createContact": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "appointmentConfirmation": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "businessInquiry": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "updateKeap": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "addMqlOrSql": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "edd5bb9c-c54d-4fa7-89e1-228f81bd3487",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cdb933c56d4d2fd569a441b2b7966e0e27d761306d8926e1440759978db55554"
+  },
+  "id": "nZKJKzVLNU8pNm2t",
+  "tags": []
+}
