@@ -1,4 +1,4 @@
-# Agent-to-Create-Email-Response
+# AI-Powered Automated Email Response & CRM Management Workflow
 This workflow automates the process of handling incoming emails using an AI agent. When a new email is received, the system extracts key details like the sender’s address, subject, and message content, then analyzes the intent behind the email. Based on this understanding, the AI generates a professional, structured HTML email reply, ensuring consistent formatting, proper tone, and inclusion of all previous conversation history in a clean thread format.
 
 Beyond just replying, the workflow integrates deeply with a CRM system. It checks whether the sender already exists as a contact, creates or enriches their profile if needed, and even gathers additional company information. Depending on the user’s intent—such as service inquiries or scheduling requests—it can fetch available time slots, suggest meetings, and categorize leads (e.g., interested or ready-to-convert).
